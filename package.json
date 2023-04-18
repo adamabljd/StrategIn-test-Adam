@@ -1,11 +1,15 @@
 {
   "name": "test-technique-adam-strategin",
   "version": "1.0.0",
-  "main": "hello.js",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Adam",
   "license": "ISC",
-  "description": ""
+  "description": "",
+  "dependencies": {
+    "express": "^4.18.2",
+    "mongoose": "^7.0.4"
+  }
 }
