@@ -6,10 +6,14 @@ const app = express();
 const path = require('path');
 const bodyParser = require("body-parser");
 const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
+
 
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(cookieParser());
+
 
 
 app.set('view engine', 'ejs');
@@ -52,6 +56,7 @@ app.post('/register', async (req, res) => {
 
 // /login
 app.get('/login', (req, res) => {
+    res.clearCookie('auth-token'); // to log out, the user just needs to redirect to log in( for now)
     res.render('login');
 });
 app.post('/login', async (req, res) => {
@@ -72,10 +77,10 @@ app.post('/login', async (req, res) => {
 
         // Create and sign a JWT token
         const token = jwt.sign({ _id: user._id }, 'secret');
-        res.header('auth-token', token);
 
 
-        res.redirect('users');
+        res.cookie('auth-token', token);
+        res.redirect('/users');
     } catch (error) {
         console.log(error);
         res.render('login', { message: error.message });
@@ -83,7 +88,20 @@ app.post('/login', async (req, res) => {
     }
 });
 
-app.get('/users', (req, res) => {
+const verifyToken = (req, res, next) => {
+    const token = req.cookies['auth-token'];
+    if (!token) return res.status(401).send('Access denied');
+
+    try {
+        const verified = jwt.verify(token, 'secret');
+        req.user = verified;
+        next();
+    } catch (err) {
+        res.status(400).send('Invalid token');
+    }
+};
+
+app.get('/users', verifyToken, (req, res) => {
     res.render('users');
 });
 
