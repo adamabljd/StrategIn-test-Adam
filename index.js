@@ -12,7 +12,6 @@ mongoose.connect(uri, { useNewUrlParser: true })
 
 // Creating a new User
 const user1 = new User({
-    name: 'John Doe',
     email: 'johndoe@example.com',
     password: 'mypassword'
 });
@@ -24,7 +23,6 @@ user1.save()
 
 // Creating a new User
 const user2 = new User({
-    name: 'Adam',
     email: 'adamabouljoud@example.com',
     password: 'adampassword'
 });
