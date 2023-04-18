@@ -4,7 +4,9 @@ const uri = 'mongodb+srv://adamabouljoud:Adamadam2001@clusterstrategintestada.8s
 const mongoose = require('mongoose');
 const app = express();
 const path = require('path');
-const bodyParser = require("body-parser")
+const bodyParser = require("body-parser");
+const jwt = require('jsonwebtoken');
+
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
@@ -40,11 +42,51 @@ app.post('/register', async (req, res) => {
         await newUser.save()
             .then(() => console.log('Successfully added the user to the database'))
             .catch((error) => console.log('Error adding the new user to the database:', error));
-        return res.render('register',{message: 'Registration succesful'});
+        return res.render('register',{message: 'Registration successful'});
     } catch (error) {
         return res.render('register', { message: error.message });
     }
 });
+
+
+
+// /login
+app.get('/login', (req, res) => {
+    res.render('login');
+});
+app.post('/login', async (req, res) => {
+    const { email, password } = req.body;
+
+    try {
+        // Check if the email exists in the database
+        const user = await User.findOne({ email });
+        if (!user) {
+            res.render('login', { message: 'Invalid email or password' });
+        }
+
+
+        // Check if the password matches
+        if (password !== user.password) {
+            res.render('login', { message: 'Invalid email or password' });
+        }
+
+        // Create and sign a JWT token
+        const token = jwt.sign({ _id: user._id }, 'secret');
+        res.header('auth-token', token);
+
+
+        res.redirect('users');
+    } catch (error) {
+        console.log(error);
+        res.render('login', { message: error.message });
+
+    }
+});
+
+app.get('/users', (req, res) => {
+    res.render('users');
+});
+
 
 // Start the server
 app.listen(3000, () => console.log('Server started on port 3000'));
