@@ -5,6 +5,25 @@
     <title>Users</title>
 </head>
 <body>
-<h1>Users</h1>
+<h1>List of Users</h1>
+
+<table>
+    <thead>
+    <tr>
+        <th>Email</th>
+        <th>Password</th>
+        <th>Created At</th>
+    </tr>
+    </thead>
+    <tbody>
+    <% users.forEach((user) => { %>
+        <tr>
+            <td><%= user.email %></td>
+            <td><%= user.password %></td>
+            <td><%= user.createdAt %></td>
+        </tr>
+    <% }); %>
+    </tbody>
+</table>
 </body>
 </html>

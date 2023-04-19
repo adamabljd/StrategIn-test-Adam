@@ -30,6 +30,7 @@ mongoose.connect(uri, {
 
 // /Register
 app.get('/register', (req, res) => {
+    res.clearCookie('auth-token'); // to log out, the user just needs to redirect to register ( for now)
     res.render('register');
 });
 app.post('/register', async (req, res) => {
@@ -56,7 +57,7 @@ app.post('/register', async (req, res) => {
 
 // /login
 app.get('/login', (req, res) => {
-    res.clearCookie('auth-token'); // to log out, the user just needs to redirect to log in( for now)
+    res.clearCookie('auth-token'); // to log out, the user just needs to redirect to log in ( for now)
     res.render('login');
 });
 app.post('/login', async (req, res) => {
@@ -101,8 +102,14 @@ const verifyToken = (req, res, next) => {
     }
 };
 
-app.get('/users', verifyToken, (req, res) => {
-    res.render('users');
+app.get('/users', verifyToken, async (req, res) => {
+    try {
+        const users = await User.find();
+        res.render('users', { users });
+    } catch (error) {
+        console.log(error);
+        res.status(500).send('Internal Server Error');
+    }
 });
 
 
