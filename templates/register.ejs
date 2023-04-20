@@ -5,14 +5,27 @@
   </head>
   <body>
     <h1>Registration</h1>
+
+    <% if (message) { %>
+      <div class="alert" role="alert">
+        <%= message %>
+      </div>
+    <% } %>
+
     <form action="/register" method="POST">
       <label for="email">Email:</label>
       <input type="email" id="email" name="email" required>
-      <br>
+      <br/><br/>
       <label for="password">Password:</label>
       <input type="password" id="password" name="password" required>
-      <br>
+      <br/><br/>
       <button type="submit">Register</button>
+    </form>
+
+    <br/>
+
+    <form action="/" method="get">
+      <button type="submit">Index</button>
     </form>
   </body>
 </html>

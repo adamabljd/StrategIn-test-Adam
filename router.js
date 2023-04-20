@@ -8,13 +8,9 @@ const bodyParser = require("body-parser");
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 
-
-
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
-
-
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'templates'));
@@ -28,10 +24,16 @@ mongoose.connect(uri, {
     .catch((error) => console.error('Error connecting to MongoDB database:', error));
 
 
-// /Register
+// Index
+app.get('/', (req, res) => {
+    res.clearCookie('auth-token');
+    res.render('index');
+})
+
+// Register
 app.get('/register', (req, res) => {
-    res.clearCookie('auth-token'); // to log out, the user just needs to redirect to register ( for now)
-    res.render('register');
+    res.clearCookie('auth-token');
+    res.render('register', { message: '' });
 });
 app.post('/register', async (req, res) => {
     const { email, password } = req.body;
@@ -55,10 +57,10 @@ app.post('/register', async (req, res) => {
 
 
 
-// /login
+// Login
 app.get('/login', (req, res) => {
-    res.clearCookie('auth-token'); // to log out, the user just needs to redirect to log in ( for now)
-    res.render('login');
+    res.clearCookie('auth-token');
+    res.render('login', {message: ''});
 });
 app.post('/login', async (req, res) => {
     const { email, password } = req.body;
@@ -66,22 +68,17 @@ app.post('/login', async (req, res) => {
     try {
         // Check if the email exists in the database
         const user = await User.findOne({ email });
-        if (!user) {
+        if (!user || password !== user.password) {
             res.render('login', { message: 'Invalid email or password' });
+        }else {
+            // Create and sign a JWT token
+            const token = jwt.sign({ _id: user._id }, 'secret');
+
+            res.cookie('auth-token', token);
+            res.redirect('/users');
         }
 
 
-        // Check if the password matches
-        if (password !== user.password) {
-            res.render('login', { message: 'Invalid email or password' });
-        }
-
-        // Create and sign a JWT token
-        const token = jwt.sign({ _id: user._id }, 'secret');
-
-
-        res.cookie('auth-token', token);
-        res.redirect('/users');
     } catch (error) {
         console.log(error);
         res.render('login', { message: error.message });
